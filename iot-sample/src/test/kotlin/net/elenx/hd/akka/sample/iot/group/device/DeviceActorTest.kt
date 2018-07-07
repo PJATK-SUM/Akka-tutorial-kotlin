@@ -3,6 +3,8 @@ package net.elenx.hd.akka.sample.iot.group.device
 import akka.actor.ActorRef
 import akka.actor.ActorSystem
 import akka.testkit.javadsl.TestKit
+import net.elenx.hd.akka.sample.iot.group.DeviceRegistered
+import net.elenx.hd.akka.sample.iot.group.RequestTrackDevice
 import org.junit.AfterClass
 import org.junit.Assert
 import org.junit.BeforeClass
@@ -17,6 +19,9 @@ class DeviceActorTest
 
         private const val GROUP_ID = "group"
         private const val DEVICE_ID = "device"
+
+        private const val WRONG_GROUP_ID = "wrong group"
+        private const val WRONG_DEVICE_ID = "wrong device"
 
         lateinit var system: ActorSystem
 
@@ -93,4 +98,37 @@ class DeviceActorTest
         Assert.assertEquals(Optional.of(lastRecordedTemperature), response.value)
 
     }
+
+    @Test
+    fun testReplyToRegistrationRequests()
+    {
+        //given
+        val mockActor = TestKit(system)
+        val deviceActor = system.actorOf(DeviceActor.props(GROUP_ID, DEVICE_ID))
+
+        //when
+        deviceActor.tell(RequestTrackDevice(MESSAGE_ID, GROUP_ID, DEVICE_ID), mockActor.ref)
+
+        //then
+        mockActor.expectMsgClass(DeviceRegistered::class.java)
+        Assert.assertEquals(deviceActor, mockActor.lastSender)
+
+    }
+
+    @Test
+    fun testIgnoreWrongRegistrationRequests()
+    {
+        //given
+        val mockActor = TestKit(system)
+        val deviceActor = system.actorOf(DeviceActor.props(GROUP_ID, DEVICE_ID))
+
+        //when //then
+        deviceActor.tell(RequestTrackDevice(MESSAGE_ID, WRONG_GROUP_ID, DEVICE_ID), mockActor.ref)
+        mockActor.expectNoMsg()
+
+        deviceActor.tell(RequestTrackDevice(MESSAGE_ID, GROUP_ID, WRONG_DEVICE_ID), mockActor.ref)
+        mockActor.expectNoMsg()
+
+    }
+
 }
