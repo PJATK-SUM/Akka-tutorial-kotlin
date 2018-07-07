@@ -1,4 +1,4 @@
-package net.elenx.hd.akka.sample.iot.device
+package net.elenx.hd.akka.sample.iot.group.device
 
 import akka.actor.ActorRef
 import akka.actor.ActorSystem
