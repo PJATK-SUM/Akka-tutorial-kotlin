@@ -5,20 +5,20 @@ import akka.actor.Props
 import akka.event.Logging
 import java.util.*
 
-class Device(private val groupId: String,
-             private val deviceId: String) : AbstractActor()
+class DeviceActor(private val groupId: String,
+                  private val deviceId: String) : AbstractActor()
 {
     companion object
     {
-        fun props(groupId: String, deviceId: String): Props = Props.create(Device::class.java, groupId, deviceId)
+        fun props(groupId: String, deviceId: String): Props = Props.create(DeviceActor::class.java, groupId, deviceId)
     }
 
     private val log = Logging.getLogger(context.system, this)
 
     private var lastTemperatureReading = Optional.empty<Double>()
 
-    override fun preStart() = log.info("Device actor {}-{} started", groupId, deviceId)
-    override fun postStop() = log.info("Device actor {}-{} stopped", groupId, deviceId)
+    override fun preStart() = log.info("DeviceActor actor {}-{} started", groupId, deviceId)
+    override fun postStop() = log.info("DeviceActor actor {}-{} stopped", groupId, deviceId)
 
     override fun createReceive(): Receive =
         receiveBuilder()
