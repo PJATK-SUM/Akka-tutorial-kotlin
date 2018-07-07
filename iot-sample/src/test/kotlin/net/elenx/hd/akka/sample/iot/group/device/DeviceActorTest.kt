@@ -17,11 +17,11 @@ class DeviceActorTest
     {
         private const val MESSAGE_ID = 42L
 
-        private const val GROUP_ID = "group"
-        private const val DEVICE_ID = "device"
+        private const val GROUP_ID = "43110"
+        private const val DEVICE_ID = "1337"
 
-        private const val WRONG_GROUP_ID = "wrong group"
-        private const val WRONG_DEVICE_ID = "wrong device"
+        private const val WRONG_GROUP_ID = "666"
+        private const val WRONG_DEVICE_ID = "999"
 
         lateinit var system: ActorSystem
 
