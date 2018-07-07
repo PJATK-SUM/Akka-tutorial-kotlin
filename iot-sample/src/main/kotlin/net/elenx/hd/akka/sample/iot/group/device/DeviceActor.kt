@@ -3,6 +3,8 @@ package net.elenx.hd.akka.sample.iot.group.device
 import akka.actor.AbstractActor
 import akka.actor.Props
 import akka.event.Logging
+import net.elenx.hd.akka.sample.iot.group.DeviceRegistered
+import net.elenx.hd.akka.sample.iot.group.RequestTrackDevice
 import java.util.*
 
 class DeviceActor(private val groupId: String,
@@ -22,15 +24,27 @@ class DeviceActor(private val groupId: String,
 
     override fun createReceive(): Receive =
         receiveBuilder()
-            .match(RecordTemperature::class.java) { r -> recordTemperature(r) }
-            .match(ReadTemperature::class.java) { r -> sender.tell(RespondTemperature(r.requestId, lastTemperatureReading), self) }
+            .match(RequestTrackDevice::class.java) { trackDevice(it) }
+            .match(RecordTemperature::class.java) { recordTemperature(it) }
+            .match(ReadTemperature::class.java) { sender.tell(RespondTemperature(it.requestId, lastTemperatureReading), self) }
             .build()
 
-    private fun recordTemperature(record: RecordTemperature)
-    {
-        log.info("Recorded temperature reading {} with {}", record.value, record.requestId)
-        lastTemperatureReading = Optional.of(record.value)
-        sender.tell(TemperatureRecorded(record.requestId), self)
-    }
+    private fun trackDevice(request: RequestTrackDevice) =
+        if (isDeviceIdCorresponds(request))
+            sender.tell(DeviceRegistered(request.requestId), self)
+        else
+            log.warning(
+                "Ignoring TrackDevice request for {}-{}. This actor is responsible for {}-{}.",
+                request.groupId, request.deviceId, this.groupId, this.deviceId
+            )
+
+    private fun isDeviceIdCorresponds(request: RequestTrackDevice) =
+        this.groupId == request.groupId && this.deviceId == request.deviceId
+
+    private fun recordTemperature(record: RecordTemperature) =
+        record
+            .also { log.info("Recorded temperature reading {} with {}", it.value, it.requestId) }
+            .also { lastTemperatureReading = Optional.of(it.value) }
+            .let { sender.tell(TemperatureRecorded(it.requestId), self) }
 
 }
