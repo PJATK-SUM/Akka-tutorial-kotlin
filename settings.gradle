@@ -1,2 +1,3 @@
-include 'hello-world-sample'
+include 'hello-world-sample',
+        'iot-sample'
 
