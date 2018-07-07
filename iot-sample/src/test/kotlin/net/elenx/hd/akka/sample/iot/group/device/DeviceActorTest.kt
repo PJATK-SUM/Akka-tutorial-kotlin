@@ -79,7 +79,7 @@ class DeviceActorTest
     }
 
     @Test
-    fun testReplyWithLatestTemperatureReading()
+    fun shouldReplyWithLatestTemperatureReading()
     {
         //given
         val probe = TestKit(system)
@@ -100,7 +100,7 @@ class DeviceActorTest
     }
 
     @Test
-    fun testReplyToRegistrationRequests()
+    fun shouldReplyToRegistrationRequests()
     {
         //given
         val mockActor = TestKit(system)
@@ -116,17 +116,31 @@ class DeviceActorTest
     }
 
     @Test
-    fun testIgnoreWrongRegistrationRequests()
+    fun shouldIgnoreRegistrationWithWrongDevice()
     {
         //given
         val mockActor = TestKit(system)
         val deviceActor = system.actorOf(DeviceActor.props(GROUP_ID, DEVICE_ID))
 
-        //when //then
-        deviceActor.tell(RequestTrackDevice(MESSAGE_ID, WRONG_GROUP_ID, DEVICE_ID), mockActor.ref)
+        //when
+        deviceActor.tell(RequestTrackDevice(MESSAGE_ID, GROUP_ID, WRONG_DEVICE_ID), mockActor.ref)
+
+        //then
         mockActor.expectNoMsg()
 
-        deviceActor.tell(RequestTrackDevice(MESSAGE_ID, GROUP_ID, WRONG_DEVICE_ID), mockActor.ref)
+    }
+
+    @Test
+    fun shouldIgnoreRegistrationWithWrongGroup()
+    {
+        //given
+        val mockActor = TestKit(system)
+        val deviceActor = system.actorOf(DeviceActor.props(GROUP_ID, DEVICE_ID))
+
+        //when
+        deviceActor.tell(RequestTrackDevice(MESSAGE_ID, WRONG_GROUP_ID, DEVICE_ID), mockActor.ref)
+
+        //then
         mockActor.expectNoMsg()
 
     }
