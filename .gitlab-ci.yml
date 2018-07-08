@@ -1,0 +1,43 @@
+image: daprog/java-8
+
+stages:
+  - build
+  - test
+  
+before_script:
+  - export GRADLE_USER_HOME=`pwd`/.gradle
+  
+cache:
+  paths:
+    - .gradle/wrapper
+    - .gradle/caches
+
+build:
+  stage: build
+  script:
+    - ./gradlew assemble
+  artifacts:
+    paths:
+      - build/*/libs/*.jar
+    expire_in: 1 week
+
+test:
+  stage: test
+  only:
+      - master
+  script:
+    - ./gradlew check sonarqube -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_LOGIN -Dsonar.password=$SONAR_PASSWORD --stacktrace
+
+testBranch:
+  stage: test
+  except:
+      - master
+  script:
+    - git config --global user.email "$GIT_USER_EMAIL"
+    - git config --global user.name "$GIT_USER_NAME"
+    - git checkout origin/master
+    - git merge $CI_COMMIT_SHA --no-commit --no-ff
+    - ./gradlew check sonarqube -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_LOGIN -Dsonar.password=$SONAR_PASSWORD -Dsonar.analysis.mode=preview -Dsonar.gitlab.project_id=$CI_PROJECT_PATH -Dsonar.gitlab.commit_sha=$CI_COMMIT_SHA -Dsonar.gitlab.ref_name=$CI_COMMIT_REF_NAME  --stacktrace
+
+after_script:
+  - echo "End CI"
