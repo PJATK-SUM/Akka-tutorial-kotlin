@@ -60,8 +60,8 @@ class DeviceGroupActorTest : ActorSystemTestBase()
         //when
         groupActor.tell(requestTrackHallThermometer, mockActor.ref)
         mockActor.expectMsgClass(DeviceRegistered::class.java)
-
         val registeredDeviceActor = mockActor.lastSender
+
         registeredDeviceActor.tell(RecordTemperature(1L, 1.0), mockActor.ref)
 
         //then
@@ -70,12 +70,34 @@ class DeviceGroupActorTest : ActorSystemTestBase()
     }
 
     @Test
-    fun shouldRegisterDifferentDevices()
+    fun shouldReturnSameActorForSameDevice()
+    {
+        //given
+        val mockActor = TestKit(ActorSystemTestBase.system)
+        val groupActor = ActorSystemTestBase.system.actorOf(DeviceGroupActor.props(DEVICE_GROUP_ID_HALL))
+
+        //when
+        groupActor.tell(RequestTrackDevice(0L, DEVICE_GROUP_ID_HALL, CEILING_THERMOMETER_ID_HALL), mockActor.ref)
+        mockActor.expectMsgClass(DeviceRegistered::class.java)
+        val firstThermometerActor = mockActor.lastSender
+
+        groupActor.tell(RequestTrackDevice(1L, DEVICE_GROUP_ID_HALL, CEILING_THERMOMETER_ID_HALL), mockActor.ref)
+        mockActor.expectMsgClass(DeviceRegistered::class.java)
+        val secondThermometerActor = mockActor.lastSender
+
+        //then
+        Assert.assertEquals(firstThermometerActor, secondThermometerActor)
+
+    }
+
+    @Test
+    fun shouldReturnDifferentDevices()
     {
         //given
         val mockActor = TestKit(system)
         val groupActor = system.actorOf(DeviceGroupActor.props(DEVICE_GROUP_ID_HALL))
 
+        //when
         groupActor.tell(RequestTrackDevice(1L, DEVICE_GROUP_ID_HALL, CEILING_THERMOMETER_ID_HALL), mockActor.ref)
         mockActor.expectMsgClass(DeviceRegistered::class.java)
         val ceilingThermometerActor = mockActor.lastSender
