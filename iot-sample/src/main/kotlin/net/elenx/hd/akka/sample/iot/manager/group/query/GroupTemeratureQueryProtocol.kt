@@ -8,5 +8,17 @@ interface TemperatureReading
 
 data class Temperature(val value: Double) : TemperatureReading
 class TemperatureNotAvailable : TemperatureReading
+{
+    override fun equals(other: Any?): Boolean = this === other || javaClass == other?.javaClass
+    override fun hashCode() = javaClass.hashCode()
+}
 class DeviceNotAvailable : TemperatureReading
+{
+    override fun equals(other: Any?): Boolean = this === other || javaClass == other?.javaClass
+    override fun hashCode() = javaClass.hashCode()
+}
 class DeviceTimedOut : TemperatureReading
+{
+    override fun equals(other: Any?): Boolean = this === other || javaClass == other?.javaClass
+    override fun hashCode() = javaClass.hashCode()
+}
