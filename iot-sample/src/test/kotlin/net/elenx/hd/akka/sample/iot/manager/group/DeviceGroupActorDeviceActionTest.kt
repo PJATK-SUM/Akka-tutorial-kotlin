@@ -3,6 +3,10 @@ package net.elenx.hd.akka.sample.iot.manager.group
 import akka.actor.ActorRef
 import akka.actor.PoisonPill
 import akka.testkit.javadsl.TestKit
+import net.elenx.hd.akka.sample.iot.manager.group.protocol.DeviceRegistered
+import net.elenx.hd.akka.sample.iot.manager.group.protocol.ReplyDeviceList
+import net.elenx.hd.akka.sample.iot.manager.group.protocol.RequestDeviceList
+import net.elenx.hd.akka.sample.iot.manager.group.protocol.RequestTrackDevice
 import net.elenx.hd.akka.sample.test.support.ActorSystemTestBase
 import org.junit.Assert
 import org.junit.Test

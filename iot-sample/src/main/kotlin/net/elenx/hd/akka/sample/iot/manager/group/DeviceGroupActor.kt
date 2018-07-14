@@ -6,6 +6,9 @@ import akka.actor.Props
 import akka.actor.Terminated
 import akka.event.Logging
 import net.elenx.hd.akka.sample.iot.manager.group.device.DeviceActor
+import net.elenx.hd.akka.sample.iot.manager.group.protocol.ReplyDeviceList
+import net.elenx.hd.akka.sample.iot.manager.group.protocol.RequestDeviceList
+import net.elenx.hd.akka.sample.iot.manager.group.protocol.RequestTrackDevice
 
 class DeviceGroupActor(private val groupId: String) : AbstractActor()
 {
