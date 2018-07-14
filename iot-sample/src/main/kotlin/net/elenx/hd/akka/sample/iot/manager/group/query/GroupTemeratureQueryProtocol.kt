@@ -1,6 +1,7 @@
 package net.elenx.hd.akka.sample.iot.manager.group.query
 
-data class RequestAllTemperatures(val requestId: Long)
+data class RequestAllTemperatures(val requestId: Long,
+                                  val requestTimeOut: Long)
 data class RespondAllTemperatures(val requestId: Long, val temperatures: Map<String, TemperatureReading>)
 class CollectionTimeout
 

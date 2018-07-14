@@ -9,6 +9,10 @@ import net.elenx.hd.akka.sample.iot.manager.group.device.DeviceActor
 import net.elenx.hd.akka.sample.iot.manager.group.protocol.ReplyDeviceList
 import net.elenx.hd.akka.sample.iot.manager.group.protocol.RequestDeviceList
 import net.elenx.hd.akka.sample.iot.manager.group.protocol.RequestTrackDevice
+import net.elenx.hd.akka.sample.iot.manager.group.query.DeviceGroupQueryActor
+import net.elenx.hd.akka.sample.iot.manager.group.query.RequestAllTemperatures
+import scala.concurrent.duration.FiniteDuration
+import java.util.concurrent.TimeUnit
 
 class DeviceGroupActor(private val groupId: String) : AbstractActor()
 {
@@ -29,6 +33,7 @@ class DeviceGroupActor(private val groupId: String) : AbstractActor()
         receiveBuilder()
             .match(RequestTrackDevice::class.java) { if (isGroupValid(it.groupId)) trackDevice(it) else logInvalidGroup(it.groupId) }
             .match(RequestDeviceList::class.java, this::onRequestDeviceList)
+            .match(RequestAllTemperatures::class.java, this::onRequestAllTemperatures)
             .match(Terminated::class.java, this::onWatchedActorTerminated)
             .build()
 
@@ -55,6 +60,18 @@ class DeviceGroupActor(private val groupId: String) : AbstractActor()
 
     private fun onRequestDeviceList(requestDeviceList: RequestDeviceList) =
         sender.tell(ReplyDeviceList(requestDeviceList.requestId, deviceIdActorMap.keys), self)
+
+    private fun onRequestAllTemperatures(request: RequestAllTemperatures): Unit =
+        with(request)
+        {
+            context.actorOf(
+                DeviceGroupQueryActor.props(
+                    actorRefDeviceIdMap.toMap(),
+                    requestId,
+                    sender,
+                    FiniteDuration(requestTimeOut, TimeUnit.SECONDS))
+            )
+        }
 
     private fun onWatchedActorTerminated(terminated: Terminated): Unit =
         terminated
