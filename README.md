@@ -10,10 +10,10 @@ I wanted to get started on Akka and occasionally to do it with kotlin.
 
 ## What the difference from original?
 
-All examples are written in kotlin and structurally similar to some degree official ones.
+All examples are written in kotlin and structurally similar to official ones (to some degree).
 Yet there was a need to adjust style towards functional programming. 
-Also there are some bits that considered to make my way (in most cases trying to increase readability).
-For example I moved all protocol related classes to specific files.
+Also there are some parts that I considered to make my way (in most cases trying to increase readability,
+for example I moved all protocol related classes to specific files).
 
 ## Translated examples map
 
@@ -22,6 +22,6 @@ For example I moved all protocol related classes to specific files.
 
 ## Additionally
 
-I am no super expert on kotlin and still trying to master it along with functional programming paradigm,
+I am no expert on kotlin and still trying to master it along with functional programming paradigms,
 so there almost definitely will be some quirks and misuse of concepts. 
 If you find such or find a way to do something better I will be more then happy to fix it.  
