@@ -24,4 +24,4 @@ for example I moved all protocol related classes to specific files).
 
 I am no expert on kotlin and still trying to master it along with functional programming paradigms,
 so there almost definitely will be some quirks and misuse of concepts. 
-If you find such or find a way to do something better I will be more then happy to fix it.  
+If you know/find a way to do something better I will be more then happy to fix it.  
