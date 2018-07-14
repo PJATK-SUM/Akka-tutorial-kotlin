@@ -1,9 +1,9 @@
-package net.elenx.hd.akka.sample.iot.group.device
+package net.elenx.hd.akka.sample.iot.manager.group.device
 
 import akka.actor.ActorRef
 import akka.testkit.javadsl.TestKit
-import net.elenx.hd.akka.sample.iot.group.DeviceRegistered
-import net.elenx.hd.akka.sample.iot.group.RequestTrackDevice
+import net.elenx.hd.akka.sample.iot.manager.group.DeviceRegistered
+import net.elenx.hd.akka.sample.iot.manager.group.RequestTrackDevice
 import net.elenx.hd.akka.sample.test.support.ActorSystemTestBase
 import org.junit.Assert
 import org.junit.Test

@@ -1,11 +1,11 @@
-package net.elenx.hd.akka.sample.iot.group
+package net.elenx.hd.akka.sample.iot.manager.group
 
 import akka.actor.AbstractActor
 import akka.actor.ActorRef
 import akka.actor.Props
 import akka.actor.Terminated
 import akka.event.Logging
-import net.elenx.hd.akka.sample.iot.group.device.DeviceActor
+import net.elenx.hd.akka.sample.iot.manager.group.device.DeviceActor
 
 class DeviceGroupActor(private val groupId: String) : AbstractActor()
 {

@@ -1,4 +1,4 @@
-package net.elenx.hd.akka.sample.iot.group
+package net.elenx.hd.akka.sample.iot.manager.group
 
 data class RequestTrackDevice(val requestId: Long,
                               val groupId: String,

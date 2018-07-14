@@ -1,4 +1,4 @@
-package net.elenx.hd.akka.sample.iot.group
+package net.elenx.hd.akka.sample.iot.manager.group
 
 data class RequestDeviceList(val requestId: Long)
 data class ReplyDeviceList(val requestId: Long,

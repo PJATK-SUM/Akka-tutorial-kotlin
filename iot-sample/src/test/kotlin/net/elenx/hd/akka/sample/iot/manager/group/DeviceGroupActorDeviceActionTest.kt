@@ -1,4 +1,4 @@
-package net.elenx.hd.akka.sample.iot.group
+package net.elenx.hd.akka.sample.iot.manager.group
 
 import akka.actor.ActorRef
 import akka.actor.PoisonPill

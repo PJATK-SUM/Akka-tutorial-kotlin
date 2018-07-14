@@ -1,10 +1,10 @@
-package net.elenx.hd.akka.sample.iot.group.device
+package net.elenx.hd.akka.sample.iot.manager.group.device
 
 import akka.actor.AbstractActor
 import akka.actor.Props
 import akka.event.Logging
-import net.elenx.hd.akka.sample.iot.group.DeviceRegistered
-import net.elenx.hd.akka.sample.iot.group.RequestTrackDevice
+import net.elenx.hd.akka.sample.iot.manager.group.DeviceRegistered
+import net.elenx.hd.akka.sample.iot.manager.group.RequestTrackDevice
 import java.util.*
 
 class DeviceActor(private val groupId: String,

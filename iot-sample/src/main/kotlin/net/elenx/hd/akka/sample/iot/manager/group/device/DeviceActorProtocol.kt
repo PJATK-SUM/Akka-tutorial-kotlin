@@ -1,4 +1,4 @@
-package net.elenx.hd.akka.sample.iot.group.device
+package net.elenx.hd.akka.sample.iot.manager.group.device
 
 import java.util.*
 

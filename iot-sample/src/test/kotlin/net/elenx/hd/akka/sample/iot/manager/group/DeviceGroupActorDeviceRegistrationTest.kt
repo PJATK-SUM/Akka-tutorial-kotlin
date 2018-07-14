@@ -1,8 +1,8 @@
-package net.elenx.hd.akka.sample.iot.group
+package net.elenx.hd.akka.sample.iot.manager.group
 
 import akka.testkit.javadsl.TestKit
-import net.elenx.hd.akka.sample.iot.group.device.RecordTemperature
-import net.elenx.hd.akka.sample.iot.group.device.TemperatureRecorded
+import net.elenx.hd.akka.sample.iot.manager.group.device.RecordTemperature
+import net.elenx.hd.akka.sample.iot.manager.group.device.TemperatureRecorded
 import net.elenx.hd.akka.sample.test.support.ActorSystemTestBase
 import org.junit.Assert
 import org.junit.Test
