@@ -3,6 +3,7 @@ package net.elenx.hd.akka.sample.iot.group
 import akka.actor.AbstractActor
 import akka.actor.ActorRef
 import akka.actor.Props
+import akka.actor.Terminated
 import akka.event.Logging
 import net.elenx.hd.akka.sample.iot.group.device.DeviceActor
 
@@ -16,6 +17,7 @@ class DeviceGroupActor(private val groupId: String) : AbstractActor()
     private val log = Logging.getLogger(context.system, this)
 
     private val deviceIdActorMap = mutableMapOf<String, ActorRef>()
+    private val actorRefDeviceIdMap = mutableMapOf<ActorRef, String>()
 
     override fun preStart() = log.info("DeviceGroup {} started", groupId)
     override fun postStop() = log.info("DeviceGroup {} stopped", groupId)
@@ -23,6 +25,7 @@ class DeviceGroupActor(private val groupId: String) : AbstractActor()
     override fun createReceive(): Receive =
         receiveBuilder()
             .match(RequestTrackDevice::class.java) { if (isGroupValid(it.groupId)) trackDevice(it) else logInvalidGroup(it.groupId) }
+            .match(Terminated::class.java, this::onWatchedActorTerminated)
             .build()
 
     private fun isGroupValid(groupId: String) = groupId == this.groupId
@@ -45,5 +48,12 @@ class DeviceGroupActor(private val groupId: String) : AbstractActor()
             "Ignoring TrackDevice request for {}. This actor is responsible for {}.",
             groupId, this.groupId
         )
+
+    private fun onWatchedActorTerminated(terminated: Terminated): Unit =
+        terminated
+            .actor
+            .let { actorRefDeviceIdMap.remove(it) }
+            .also { log.info("Device actor for {} has been terminated", it) }
+            .let { deviceIdActorMap.remove(it) }
 
 }
