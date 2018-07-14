@@ -7,7 +7,7 @@ import net.elenx.hd.akka.sample.test.support.ActorSystemTestBase
 import org.junit.Assert
 import org.junit.Test
 
-class DeviceGroupActorTest : ActorSystemTestBase()
+class DeviceGroupActorDeviceRegistrationTest : ActorSystemTestBase()
 {
     companion object
     {
