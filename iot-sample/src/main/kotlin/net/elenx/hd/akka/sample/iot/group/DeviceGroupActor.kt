@@ -19,8 +19,8 @@ class DeviceGroupActor(private val groupId: String) : AbstractActor()
     private val deviceIdActorMap = mutableMapOf<String, ActorRef>()
     private val actorRefDeviceIdMap = mutableMapOf<ActorRef, String>()
 
-    override fun preStart() = log.info("DeviceGroup {} started", groupId)
-    override fun postStop() = log.info("DeviceGroup {} stopped", groupId)
+    override fun preStart() = log.info("DeviceGroup {} started.", groupId)
+    override fun postStop() = log.info("DeviceGroup {} stopped.", groupId)
 
     override fun createReceive(): Receive =
         receiveBuilder()
@@ -32,16 +32,16 @@ class DeviceGroupActor(private val groupId: String) : AbstractActor()
 
     private fun trackDevice(trackMsg: RequestTrackDevice) =
         acquireActorFor(trackMsg.groupId, trackMsg.deviceId)
-            .also { deviceIdActorMap[trackMsg.deviceId] = it }
             .forward(trackMsg, context)
 
-    private fun acquireActorFor(groupId: String, deviceId: String) = deviceIdActorMap[deviceId] ?: createDeviceActorOf(groupId, deviceId)
-    private fun createDeviceActorOf(groupId: String, deviceId: String) =
+    private fun acquireActorFor(groupId: String, deviceId: String) = deviceIdActorMap[deviceId] ?: registerActorOf(groupId, deviceId)
+    private fun registerActorOf(groupId: String, deviceId: String) =
         context
             .actorOf(DeviceActor.props(groupId, deviceId), "device-$deviceId")
-            .also { logDeviceActorCreationOf(deviceId) }
-
-    private fun logDeviceActorCreationOf(deviceId: String) = log.info("Created device actor for {}", deviceId)
+            .also { context.watch(it) }
+            .also { deviceIdActorMap[deviceId] = it }
+            .also { actorRefDeviceIdMap[it] = deviceId }
+            .also { log.info("Registered device actor for {}.", deviceId) }
 
     private fun logInvalidGroup(groupId: String) =
         log.warning(
@@ -53,7 +53,7 @@ class DeviceGroupActor(private val groupId: String) : AbstractActor()
         terminated
             .actor
             .let { actorRefDeviceIdMap.remove(it) }
-            .also { log.info("Device actor for {} has been terminated", it) }
+            .also { log.info("Device actor for {} has been terminated.", it) }
             .let { deviceIdActorMap.remove(it) }
 
 }
