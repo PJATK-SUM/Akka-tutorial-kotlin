@@ -1,17 +1,15 @@
 package net.elenx.hd.akka.sample.iot.group.device
 
 import akka.actor.ActorRef
-import akka.actor.ActorSystem
 import akka.testkit.javadsl.TestKit
 import net.elenx.hd.akka.sample.iot.group.DeviceRegistered
 import net.elenx.hd.akka.sample.iot.group.RequestTrackDevice
-import org.junit.AfterClass
+import net.elenx.hd.akka.sample.test.support.ActorSystemTestBase
 import org.junit.Assert
-import org.junit.BeforeClass
 import org.junit.Test
 import java.util.*
 
-class DeviceActorTest
+class DeviceActorTest : ActorSystemTestBase()
 {
     companion object
     {
@@ -22,22 +20,6 @@ class DeviceActorTest
 
         private const val WRONG_GROUP_ID = "666"
         private const val WRONG_DEVICE_ID = "999"
-
-        lateinit var system: ActorSystem
-
-        @BeforeClass
-        @JvmStatic
-        fun setup()
-        {
-            system = ActorSystem.create()
-        }
-
-        @AfterClass
-        @JvmStatic
-        fun teardown()
-        {
-            akka.testkit.javadsl.TestKit.shutdownActorSystem(system)
-        }
     }
 
     @Test
