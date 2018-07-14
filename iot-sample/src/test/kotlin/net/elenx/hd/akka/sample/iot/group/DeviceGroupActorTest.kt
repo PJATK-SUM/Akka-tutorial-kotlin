@@ -12,42 +12,81 @@ class DeviceGroupActorTest : ActorSystemTestBase()
     companion object
     {
         private const val DEVICE_GROUP_ID_HALL = "hall"
-        private const val THERMOMETER_ID_HALL = "thermometer-a13"
-        private const val BAROMETER_ID_HALL = "barometer-s0"
+        private const val CEILING_THERMOMETER_ID_HALL = "thermometer-ceiling"
+        private const val WALL_THERMOMETER_ID_HALL = "thermometer-wall"
 
         private const val DEVICE_GROUP_ID_GARAGE = "garage"
+    }
+
+    @Test
+    fun shouldIgnoreRequestsForWrongGroupId()
+    {
+        //given
+        val mockActor = TestKit(system)
+        val groupActor = system.actorOf(DeviceGroupActor.props(DEVICE_GROUP_ID_HALL))
+
+        //when
+        groupActor.tell(RequestTrackDevice(1L, DEVICE_GROUP_ID_GARAGE, CEILING_THERMOMETER_ID_HALL), mockActor.ref)
+
+        //then
+        mockActor.expectNoMsg()
 
     }
 
     @Test
-    fun testRegisterDeviceActor()
+    fun shouldRegisterDeviceActor()
     {
-        val probe = TestKit(system)
+        //given
+        val mockActor = TestKit(system)
         val groupActor = system.actorOf(DeviceGroupActor.props(DEVICE_GROUP_ID_HALL))
+        val requestTrackHallThermometer = RequestTrackDevice(0L, DEVICE_GROUP_ID_HALL, CEILING_THERMOMETER_ID_HALL)
 
-        groupActor.tell(RequestTrackDevice(1L, DEVICE_GROUP_ID_HALL, THERMOMETER_ID_HALL), probe.ref)
-        probe.expectMsgClass(DeviceRegistered::class.java)
-        val deviceActor1 = probe.lastSender
+        //when
+        groupActor.tell(requestTrackHallThermometer, mockActor.ref)
 
-        groupActor.tell(RequestTrackDevice(1L, DEVICE_GROUP_ID_HALL, BAROMETER_ID_HALL), probe.ref)
-        probe.expectMsgClass(DeviceRegistered::class.java)
-        val deviceActor2 = probe.lastSender
-        Assert.assertNotEquals(deviceActor1, deviceActor2)
+        //then
+        Assert.assertNotNull(mockActor.expectMsgClass(DeviceRegistered::class.java))
 
-        // Check that the device actors are working
-        deviceActor1.tell(RecordTemperature(0L, 1.0), probe.ref)
-        Assert.assertEquals(0L, probe.expectMsgClass(TemperatureRecorded::class.java).requestId)
-        deviceActor2.tell(RecordTemperature(1L, 2.0), probe.ref)
-        Assert.assertEquals(1L, probe.expectMsgClass(TemperatureRecorded::class.java).requestId)
     }
 
     @Test
-    fun testIgnoreRequestsForWrongGroupId()
+    fun shouldReturnDeviceActorReference()
     {
-        val probe = TestKit(system)
+        //given
+        val mockActor = TestKit(system)
+        val groupActor = system.actorOf(DeviceGroupActor.props(DEVICE_GROUP_ID_HALL))
+        val requestTrackHallThermometer = RequestTrackDevice(0L, DEVICE_GROUP_ID_HALL, CEILING_THERMOMETER_ID_HALL)
+
+        //when
+        groupActor.tell(requestTrackHallThermometer, mockActor.ref)
+        mockActor.expectMsgClass(DeviceRegistered::class.java)
+
+        val registeredDeviceActor = mockActor.lastSender
+        registeredDeviceActor.tell(RecordTemperature(1L, 1.0), mockActor.ref)
+
+        //then
+        Assert.assertNotNull(mockActor.expectMsgClass(TemperatureRecorded::class.java))
+
+    }
+
+    @Test
+    fun shouldRegisterDifferentDevices()
+    {
+        //given
+        val mockActor = TestKit(system)
         val groupActor = system.actorOf(DeviceGroupActor.props(DEVICE_GROUP_ID_HALL))
 
-        groupActor.tell(RequestTrackDevice(1L, DEVICE_GROUP_ID_GARAGE, THERMOMETER_ID_HALL), probe.ref)
-        probe.expectNoMsg()
+        groupActor.tell(RequestTrackDevice(1L, DEVICE_GROUP_ID_HALL, CEILING_THERMOMETER_ID_HALL), mockActor.ref)
+        mockActor.expectMsgClass(DeviceRegistered::class.java)
+        val ceilingThermometerActor = mockActor.lastSender
+
+        groupActor.tell(RequestTrackDevice(2L, DEVICE_GROUP_ID_HALL, WALL_THERMOMETER_ID_HALL), mockActor.ref)
+        mockActor.expectMsgClass(DeviceRegistered::class.java)
+        val wallThermometerActor = mockActor.lastSender
+
+        //then
+        Assert.assertNotEquals(ceilingThermometerActor, wallThermometerActor)
+
     }
+
 }
