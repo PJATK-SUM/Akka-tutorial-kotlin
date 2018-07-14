@@ -24,6 +24,43 @@ class DeviceGroupQueryActorTest : ActorSystemTestBase()
 
         private const val QUERY_REQUEST_ID = 1L
         private const val QUERY_TIMEOUT = 3L
+        private const val QUERY_TIMEOUT_WAIT_BUFFER = QUERY_TIMEOUT + 2
+    }
+
+    @Test
+    fun shouldQueryAllDevices()
+    {
+        //given
+        val (requester, ceilingThermometer, wallThermometer) = createMockActors()
+        val actorRefDeviceIdMap = createActorRefDeviceIdMap(ceilingThermometer, wallThermometer)
+
+        //when
+        createQueryActor(actorRefDeviceIdMap, requester)
+
+        //then
+        ceilingThermometer.expectMsgClass(ReadTemperature::class.java)
+        wallThermometer.expectMsgClass(ReadTemperature::class.java)
+
+    }
+
+    @Test
+    fun shouldRespondWIthRightQueryId()
+    {
+        //given
+        val (requester, ceilingThermometer, wallThermometer) = createMockActors()
+        val actorRefDeviceIdMap = createActorRefDeviceIdMap(ceilingThermometer, wallThermometer)
+
+        //when
+        val queryActor = createQueryActor(actorRefDeviceIdMap, requester)
+
+        queryActor.tell(RespondTemperature(0L, Optional.of(ceilingTemperature.value)), ceilingThermometer.ref)
+        queryActor.tell(RespondTemperature(0L, Optional.of(wallTemperature.value)), wallThermometer.ref)
+
+        val response = requester.expectMsgClass(RespondAllTemperatures::class.java)
+
+        //then
+        Assert.assertEquals(QUERY_REQUEST_ID, response.requestId)
+
     }
 
     @Test
@@ -37,22 +74,18 @@ class DeviceGroupQueryActorTest : ActorSystemTestBase()
         //when
         val queryActor = createQueryActor(actorRefDeviceIdMap, requester)
 
-        ceilingThermometer.expectMsgClass(ReadTemperature::class.java)
-        queryActor.tell(RespondTemperature(0L, Optional.of(1.0)), ceilingThermometer.ref)
-
-        wallThermometer.expectMsgClass(ReadTemperature::class.java)
-        queryActor.tell(RespondTemperature(0L, Optional.of(2.0)), wallThermometer.ref)
+        queryActor.tell(RespondTemperature(0L, Optional.of(ceilingTemperature.value)), ceilingThermometer.ref)
+        queryActor.tell(RespondTemperature(0L, Optional.of(wallTemperature.value)), wallThermometer.ref)
 
         val response = requester.expectMsgClass(RespondAllTemperatures::class.java)
 
         //then
-        Assert.assertEquals(QUERY_REQUEST_ID, response.requestId)
         Assert.assertEquals(expectedTemperatures, response.temperatures)
 
     }
 
     @Test
-    fun testReturnTemperatureNotAvailableForDevicesWithNoReadings()
+    fun shouldReturnTemperatureNotAvailableForDevicesWithNoReadings()
     {
         //given
         val (requester, ceilingThermometer, wallThermometer) = createMockActors()
@@ -63,20 +96,18 @@ class DeviceGroupQueryActorTest : ActorSystemTestBase()
         val queryActor = createQueryActor(actorRefDeviceIdMap, requester)
 
         queryActor.tell(RespondTemperature(0L, Optional.empty()), ceilingThermometer.ref)
-        queryActor.tell(RespondTemperature(0L, Optional.of(2.0)), wallThermometer.ref)
+        queryActor.tell(RespondTemperature(0L, Optional.of(wallTemperature.value)), wallThermometer.ref)
 
         val response = requester.expectMsgClass(RespondAllTemperatures::class.java)
 
         //then
-        Assert.assertEquals(1L, response.requestId)
         Assert.assertEquals(expectedTemperatures, response.temperatures)
 
     }
 
     @Test
-    fun testReturnDeviceNotAvailableIfDeviceStopsBeforeAnswering()
+    fun shouldReturnDeviceNotAvailableIfDeviceStopsBeforeAnswering()
     {
-
         //given
         val (requester, ceilingThermometer, wallThermometer) = createMockActors()
         val actorRefDeviceIdMap = createActorRefDeviceIdMap(ceilingThermometer, wallThermometer)
@@ -85,19 +116,18 @@ class DeviceGroupQueryActorTest : ActorSystemTestBase()
         //when
         val queryActor = createQueryActor(actorRefDeviceIdMap, requester)
 
-        queryActor.tell(RespondTemperature(0L, Optional.of(1.0)), ceilingThermometer.ref)
+        queryActor.tell(RespondTemperature(0L, Optional.of(ceilingTemperature.value)), ceilingThermometer.ref)
         wallThermometer.ref.tell(PoisonPill.getInstance(), ActorRef.noSender())
 
         val response = requester.expectMsgClass(RespondAllTemperatures::class.java)
 
         //then
-        Assert.assertEquals(1L, response.requestId)
         Assert.assertEquals(expectedTemperatures, response.temperatures)
 
     }
 
     @Test
-    fun testReturnTemperatureReadingEvenIfDeviceStopsAfterAnswering()
+    fun shouldReturnTemperatureReadingEvenIfDeviceStopsAfterAnswering()
     {
         //given
         val (requester, ceilingThermometer, wallThermometer) = createMockActors()
@@ -107,20 +137,19 @@ class DeviceGroupQueryActorTest : ActorSystemTestBase()
         //when
         val queryActor = createQueryActor(actorRefDeviceIdMap, requester)
 
-        queryActor.tell(RespondTemperature(0L, Optional.of(1.0)), ceilingThermometer.ref)
-        queryActor.tell(RespondTemperature(0L, Optional.of(2.0)), wallThermometer.ref)
+        queryActor.tell(RespondTemperature(0L, Optional.of(ceilingTemperature.value)), ceilingThermometer.ref)
+        queryActor.tell(RespondTemperature(0L, Optional.of(wallTemperature.value)), wallThermometer.ref)
         wallThermometer.ref.tell(PoisonPill.getInstance(), ActorRef.noSender())
 
         val response = requester.expectMsgClass(RespondAllTemperatures::class.java)
 
         //then
-        Assert.assertEquals(1L, response.requestId)
         Assert.assertEquals(expectedTemperatures, response.temperatures)
 
     }
 
     @Test
-    fun testReturnDeviceTimedOutIfDeviceDoesNotAnswerInTime()
+    fun shouldReturnDeviceTimedOutIfDeviceDoesNotAnswerInTime()
     {
         //given
         val (requester, ceilingThermometer, wallThermometer) = createMockActors()
@@ -130,12 +159,11 @@ class DeviceGroupQueryActorTest : ActorSystemTestBase()
         //when
         val queryActor = createQueryActor(actorRefDeviceIdMap, requester)
 
-        queryActor.tell(RespondTemperature(0L, Optional.of(1.0)), ceilingThermometer.ref)
+        queryActor.tell(RespondTemperature(0L, Optional.of(ceilingTemperature.value)), ceilingThermometer.ref)
 
-        val response = requester.expectMsgClass(FiniteDuration(5, TimeUnit.SECONDS), RespondAllTemperatures::class.java)
+        val response = requester.expectMsgClass(FiniteDuration(QUERY_TIMEOUT_WAIT_BUFFER, TimeUnit.SECONDS), RespondAllTemperatures::class.java)
 
         //then
-        Assert.assertEquals(1L, response.requestId)
         Assert.assertEquals(expectedTemperatures, response.temperatures)
 
     }
