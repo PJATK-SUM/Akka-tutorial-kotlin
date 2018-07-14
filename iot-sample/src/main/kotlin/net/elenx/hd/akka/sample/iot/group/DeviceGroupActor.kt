@@ -25,6 +25,7 @@ class DeviceGroupActor(private val groupId: String) : AbstractActor()
     override fun createReceive(): Receive =
         receiveBuilder()
             .match(RequestTrackDevice::class.java) { if (isGroupValid(it.groupId)) trackDevice(it) else logInvalidGroup(it.groupId) }
+            .match(RequestDeviceList::class.java, this::onRequestDeviceList)
             .match(Terminated::class.java, this::onWatchedActorTerminated)
             .build()
 
@@ -48,6 +49,9 @@ class DeviceGroupActor(private val groupId: String) : AbstractActor()
             "Ignoring TrackDevice request for {}. This actor is responsible for {}.",
             groupId, this.groupId
         )
+
+    private fun onRequestDeviceList(requestDeviceList: RequestDeviceList) =
+        sender.tell(ReplyDeviceList(requestDeviceList.requestId, deviceIdActorMap.keys), self)
 
     private fun onWatchedActorTerminated(terminated: Terminated): Unit =
         terminated
