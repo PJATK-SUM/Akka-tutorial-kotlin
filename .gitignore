@@ -6,6 +6,8 @@ ehthumbs.db
 ehthumbs_vista.db
 .idea
 akka-quickstart-java.iml
+build
+target
 
 # Dump file
 *.stackdump
@@ -129,3 +131,11 @@ fabric.properties
 # Editor-based Rest Client
 .idea/httpRequests
 /akka-quickstart-java.iml
+Akka-tutorial-kotlin.iml
+hello-world-sample/build/kotlin/
+hello-world-sample/src/main/resources/
+hello-world-sample/src/test/resources/
+iot-sample/build/classes/kotlin/main/net/elenx/hd/akka/sample/iot/device/
+iot-sample/build/kotlin/
+iot-sample/build/reports/
+iot-sample/build/test-results/
