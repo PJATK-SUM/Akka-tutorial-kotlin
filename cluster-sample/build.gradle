@@ -20,8 +20,11 @@ repositories {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    compile "com.typesafe.akka:akka-cluster_2.12:2.5.14"
+    compile(
+        "org.jetbrains.kotlin:kotlin-stdlib-jdk8",
+        "com.typesafe.akka:akka-cluster_2.12:2.5.14",
+        "com.typesafe.akka:akka-cluster-metrics_2.12:2.5.14"
+    )
 }
 
 compileKotlin {
@@ -30,3 +33,5 @@ compileKotlin {
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
+
+mainClassName = "net.elenx.hd.akka.sample.cluster.SimpleClusterApp"
